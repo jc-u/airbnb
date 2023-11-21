@@ -87,7 +87,7 @@ const SignInScreen = ({ navigation }) => {
 	);
 };
 
-export default SignupScreen;
+export default SignInScreen;
 
 const useStyle = () => {
 	// utilisation du hook "useWindowDimensions"
