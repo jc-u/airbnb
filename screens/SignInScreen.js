@@ -33,7 +33,7 @@ const SignupScreen = ({ navigation }) => {
 				alert("Connexion réussie");
 			} else {
 				// Échec de la connexion, affiche une erreur
-				console.log(response.data.message); // Fix the typo here
+				console.log(response.data.message);
 				setErrorMessage(response.data.message);
 			}
 		} catch (error) {
