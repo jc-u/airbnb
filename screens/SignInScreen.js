@@ -11,7 +11,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { useState } from "react";
 import axios from "axios";
 
-const SignupScreen = ({ navigation }) => {
+const SignInScreen = ({ navigation }) => {
 	// Utilisation de la fonction 'useStyle' qui utilise le hook "useWindowDimensions"
 	const styles = useStyle();
 	const [email, setEmail] = useState("");
