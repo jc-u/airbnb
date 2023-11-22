@@ -3,14 +3,15 @@ import {
 	Text,
 	View,
 	TextInput,
-	Button,
 	StyleSheet,
 	Image,
 	TouchableOpacity,
+	ActivityIndicator,
 } from "react-native";
 import axios from "axios";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useWindowDimensions } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 
 const SignUpScreen = ({ navigation }) => {
 	// Utilisation de la fonction 'useStyle' qui utilise le hook "useWindowDimensions"
@@ -21,9 +22,20 @@ const SignUpScreen = ({ navigation }) => {
 	const [description, setDescription] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
+	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
 
 	const handleSignUp = async () => {
+		setIsLoading(true);
+		// Vérifiez si le mot de passe et la confirmation du mot de passe sont identiques
+		if (password !== confirmPassword) {
+			setErrorMessage(
+				"Le mot de passe et la confirmation du mot de passe ne correspondent pas."
+			);
+			return;
+		}
+
 		try {
 			const response = await axios.post(
 				"https://lereacteur-bootcamp-api.herokuapp.com/api/airbnb/user/sign_up",
@@ -36,19 +48,14 @@ const SignUpScreen = ({ navigation }) => {
 			);
 
 			if (response.status === 200) {
-				// Inscription réussie, naviguez vers l'écran souhaité
-				navigation.navigate("Votre écran souhaité");
-			} else {
-				// Échec de l'inscription, affichez une erreur
-				setErrorMessage("Une erreur s'est produite lors de l'inscription.");
+				// Connexion réussie, affiche une popup
+				alert("Inscription réussie");
 			}
 		} catch (error) {
-			if (error.response) {
-				setErrorMessage(error.response.data.message);
-			} else {
-				setErrorMessage("Une erreur s'est produite. Veuillez réessayer.");
-			}
+			console.log(error.response.data.error);
+			setErrorMessage(error.response.data.error);
 		}
+		setIsLoading(false);
 	};
 
 	return (
@@ -83,28 +90,55 @@ const SignUpScreen = ({ navigation }) => {
 						textAlignVertical="top"
 						onChangeText={setDescription}
 					/>
-					<TextInput
-						style={styles.input}
-						placeholder="password"
-						value={password}
-						onChangeText={setPassword}
-						secureTextEntry
-					/>
-					<TextInput
-						style={styles.input}
-						placeholder="confirm password"
-						value={confirmPassword}
-						onChangeText={setConfirmPassword}
-						secureTextEntry
-					/>
+					<View style={styles.passwordContainer}>
+						<TextInput
+							style={styles.input}
+							placeholder="password"
+							value={password}
+							onChangeText={setPassword}
+							secureTextEntry={!isPasswordVisible} // Le mot de passe est caché si isPasswordVisible est false
+							textContentType="newPassword"
+						/>
+						<FontAwesome
+							name={isPasswordVisible ? "eye-slash" : "eye"}
+							size={20}
+							color="#EB5A62"
+							style={styles.icon}
+							icon={isPasswordVisible ? "eye-slash" : "eye"}
+							onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+						/>
+					</View>
+					<View style={styles.passwordContainer}>
+						<TextInput
+							style={styles.input}
+							placeholder="confirm password"
+							value={confirmPassword}
+							onChangeText={setConfirmPassword}
+							secureTextEntry={!isPasswordVisible} // Le mot de passe est caché si isPasswordVisible est false
+						/>
+						<FontAwesome
+							name={isPasswordVisible ? "eye-slash" : "eye"}
+							size={20}
+							color="#EB5A62"
+							style={styles.icon}
+							icon={isPasswordVisible ? "eye-slash" : "eye"}
+							onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+						/>
+					</View>
 					<View style={styles.signBtn}>
-						{errorMessage ? <Text>{errorMessage}</Text> : null}
-						<TouchableOpacity
-							style={styles.btn}
-							activeOpacity={0.8}
-							onPress={handleSignUp}>
-							<Text style={styles.btnText}>Sign up</Text>
-						</TouchableOpacity>
+						{errorMessage ? (
+							<Text style={styles.error}>{errorMessage}</Text>
+						) : null}
+						{isLoading ? (
+							<ActivityIndicator size="large" color="#EB5A62" />
+						) : (
+							<TouchableOpacity
+								style={styles.btn}
+								activeOpacity={0.8}
+								onPress={handleSignUp}>
+								<Text style={styles.btnText}>Sign up</Text>
+							</TouchableOpacity>
+						)}
 						<TouchableOpacity onPress={() => navigation.navigate("Signin")}>
 							<Text style={styles.register}>
 								Already have an account ? Sign in
@@ -130,12 +164,12 @@ const useStyle = () => {
 			flex: 1,
 			alignItems: "center",
 			justifyContent: "center",
-			height: height * 0.8,
 		},
 		signHeader: {
 			flex: 1,
 			alignItems: "center",
 			justifyContent: "center",
+			marginTop: 50,
 		},
 		title: {
 			fontSize: 22,
@@ -147,7 +181,7 @@ const useStyle = () => {
 			flex: 1,
 			alignItems: "center",
 			justifyContent: "center",
-			marginTop: 200,
+			marginTop: 50,
 		},
 		logo: {
 			width: 100,
@@ -164,8 +198,14 @@ const useStyle = () => {
 			height: 100,
 			borderWidth: 1,
 		},
+
+		icon: {
+			position: "absolute",
+			right: 10,
+			bottom: 25,
+		},
 		signBtn: {
-			marginTop: 50,
+			marginTop: 30,
 		},
 		btn: {
 			borderColor: "#EB5A62",
@@ -185,6 +225,12 @@ const useStyle = () => {
 			color: "#737373",
 			textAlign: "center",
 			marginTop: 20,
+			marginBottom: 20,
+		},
+		error: {
+			color: "red",
+			marginBottom: 10,
+			textAlign: "center",
 		},
 	});
 
