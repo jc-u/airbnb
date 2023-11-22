@@ -12,8 +12,10 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { useState } from "react";
 import axios from "axios";
 import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/core";
 
-const SignInScreen = ({ navigation }) => {
+const SignInScreen = ({ setToken }) => {
+	const navigation = useNavigation();
 	// Utilisation de la fonction 'useStyle' qui utilise le hook "useWindowDimensions"
 	const styles = useStyle();
 	const [email, setEmail] = useState("");
@@ -36,6 +38,7 @@ const SignInScreen = ({ navigation }) => {
 			if (response.status === 200) {
 				// Connexion réussie, affiche une popup
 				alert("Connexion réussie");
+				setToken(response.data.token);
 			}
 		} catch (error) {
 			console.log(error.response.data.error);
@@ -66,7 +69,7 @@ const SignInScreen = ({ navigation }) => {
 						<TextInput
 							style={styles.input}
 							placeholder="password"
-							secureTextEntry={true}
+							secureTextEntry={!isPasswordVisible} // Le mot de passe est caché si isPasswordVisible est false
 							value={password}
 							onChangeText={(text) => {
 								setPassword(text);

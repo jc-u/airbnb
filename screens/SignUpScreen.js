@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
 	Text,
 	View,
@@ -12,8 +12,10 @@ import axios from "axios";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useWindowDimensions } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/core";
 
-const SignUpScreen = ({ navigation }) => {
+const SignUpScreen = ({ setToken }) => {
+	const navigation = useNavigation();
 	// Utilisation de la fonction 'useStyle' qui utilise le hook "useWindowDimensions"
 	const styles = useStyle();
 
@@ -27,15 +29,20 @@ const SignUpScreen = ({ navigation }) => {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const handleSignUp = async () => {
-		setIsLoading(true);
+		// Vérifiez si les champs sont vides
+		if (!email || !username || !description || !password || !confirmPassword) {
+			setErrorMessage("Tous les champs sont obligatoires.");
+			return;
+		}
 		// Vérifiez si le mot de passe et la confirmation du mot de passe sont identiques
 		if (password !== confirmPassword) {
 			setErrorMessage(
 				"Le mot de passe et la confirmation du mot de passe ne correspondent pas."
 			);
+			setIsLoading(false);
 			return;
 		}
-
+		setIsLoading(true);
 		try {
 			const response = await axios.post(
 				"https://lereacteur-bootcamp-api.herokuapp.com/api/airbnb/user/sign_up",
@@ -51,9 +58,15 @@ const SignUpScreen = ({ navigation }) => {
 				// Connexion réussie, affiche une popup
 				alert("Inscription réussie");
 			}
+			//  Envoie du 'token' à la fonction pour le créer dans l'asyncStorage et le state puis accéder au reste de l'application
+			setToken(response.data.token);
 		} catch (error) {
 			console.log(error.response.data.error);
-			setErrorMessage(error.response.data.error);
+			if (error.response) {
+				setErrorMessage(error.response.data.error);
+			} else {
+				setErrorMessage("Une erreur est survenue");
+			}
 		}
 		setIsLoading(false);
 	};
@@ -73,6 +86,7 @@ const SignUpScreen = ({ navigation }) => {
 						placeholder="email"
 						value={email}
 						onChangeText={(text) => {
+							setErrorMessage("");
 							setEmail(text);
 						}}
 					/>
@@ -80,7 +94,10 @@ const SignUpScreen = ({ navigation }) => {
 						style={styles.input}
 						placeholder="Username"
 						value={username}
-						onChangeText={setUsername}
+						onChangeText={(text) => {
+							setErrorMessage("");
+							setUsername(text);
+						}}
 					/>
 					<TextInput
 						style={[styles.input, styles.description]}
@@ -88,14 +105,20 @@ const SignUpScreen = ({ navigation }) => {
 						value={description}
 						multiline={true}
 						textAlignVertical="top"
-						onChangeText={setDescription}
+						onChangeText={(text) => {
+							setErrorMessage("");
+							setDescription(text);
+						}}
 					/>
 					<View style={styles.passwordContainer}>
 						<TextInput
 							style={styles.input}
 							placeholder="password"
 							value={password}
-							onChangeText={setPassword}
+							onChangeText={(text) => {
+								setErrorMessage("");
+								setPassword(text);
+							}}
 							secureTextEntry={!isPasswordVisible} // Le mot de passe est caché si isPasswordVisible est false
 							textContentType="newPassword"
 						/>
@@ -113,7 +136,10 @@ const SignUpScreen = ({ navigation }) => {
 							style={styles.input}
 							placeholder="confirm password"
 							value={confirmPassword}
-							onChangeText={setConfirmPassword}
+							onChangeText={(text) => {
+								setErrorMessage("");
+								setConfirmPassword(text);
+							}}
 							secureTextEntry={!isPasswordVisible} // Le mot de passe est caché si isPasswordVisible est false
 						/>
 						<FontAwesome
@@ -125,10 +151,12 @@ const SignUpScreen = ({ navigation }) => {
 							onPress={() => setIsPasswordVisible(!isPasswordVisible)}
 						/>
 					</View>
-					<View style={styles.signBtn}>
+					<View style={styles.errorContainer}>
 						{errorMessage ? (
 							<Text style={styles.error}>{errorMessage}</Text>
 						) : null}
+					</View>
+					<View style={styles.signBtn}>
 						{isLoading ? (
 							<ActivityIndicator size="large" color="#EB5A62" />
 						) : (
@@ -205,7 +233,7 @@ const useStyle = () => {
 			bottom: 25,
 		},
 		signBtn: {
-			marginTop: 30,
+			marginTop: 10,
 		},
 		btn: {
 			borderColor: "#EB5A62",
@@ -226,6 +254,14 @@ const useStyle = () => {
 			textAlign: "center",
 			marginTop: 20,
 			marginBottom: 20,
+		},
+		errorContainer: {
+			height: 50,
+			textAlign: "center",
+			width: width * 0.8,
+			justifyContent: "center",
+			alignItems: "center",
+			flexWrap: "wrap",
 		},
 		error: {
 			color: "red",
