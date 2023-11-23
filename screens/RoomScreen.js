@@ -50,33 +50,31 @@ const RoomScreen = ({ route }) => {
 		fetchData();
 	}, []);
 
-	useEffect(() => {
-		const askPermissionAndGetCoords = async () => {
-			// Demander l'autorisation d'accès à la localisation
-			const { status } = await Location.requestForegroundPermissionsAsync();
+	// useEffect(() => {
+	// 	const askPermissionAndGetCoords = async () => {
+	// 		// Demander l'autorisation d'accès à la localisation
+	// 		const { status } = await Location.requestForegroundPermissionsAsync();
 
-			// console.log("response>>", status);
+	// 		// console.log("response>>", status);
 
-			if (status === "granted") {
-				// console.log("ok");
+	// 		if (status === "granted") {
+	// 			// console.log("ok");
+	// 			// Récupérer les coordonnées
+	// 			//	const { coords } = await Location.getCurrentPositionAsync();
+	// 			// console.log("response coords>", coords);
+	// 			// setCoordinates({
+	// 			// 	longitude: coords.longitude,
+	// 			// 	latitude: coords.latitude,
+	// 			// });
+	// 		} else {
+	// 			alert("Access denied");
+	// 		}
 
-				// Récupérer les coordonnées
-				const { coords } = await Location.getCurrentPositionAsync();
-				// console.log("response coords>", coords);
+	// 		setIsLoading(false);
+	// 	};
 
-				setCoordinates({
-					longitude: coords.longitude,
-					latitude: coords.latitude,
-				});
-			} else {
-				alert("Access denied");
-			}
-
-			setIsLoading(false);
-		};
-
-		askPermissionAndGetCoords();
-	}, []);
+	// 	askPermissionAndGetCoords();
+	// }, []);
 
 	return isLoading ? (
 		<ActivityIndicator size="large" color="#EB5A62" />
@@ -116,10 +114,12 @@ const RoomScreen = ({ route }) => {
 						/>
 					</TouchableOpacity>
 					<View style={styles.userContainer}>
-						{/* <Image
-							style={styles.userImg}
-							source={{ uri: room.user.account.photo.url }}
-						/> */}
+						{room.user && room.user.account && room.user.account.photo && (
+							<Image
+								style={styles.userImg}
+								source={{ uri: room.user.account.photo.url }}
+							/>
+						)}
 					</View>
 				</View>
 			</View>
@@ -130,8 +130,8 @@ const RoomScreen = ({ route }) => {
 					provider={PROVIDER_GOOGLE}
 					// Dévinition du centrage de la carte
 					initialRegion={{
-						longitude: coordinates.latitude,
-						latitude: coordinates.longitude,
+						longitude: coordinates.longitude,
+						latitude: coordinates.latitude,
 						// Niveau de zoom de la carte
 						latitudeDelta: 0.2,
 						longitudeDelta: 0.2,
