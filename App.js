@@ -4,13 +4,13 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "react-native";
 
 import HomeScreen from "./screens/HomeScreen";
 import SignInScreen from "./screens/SignInScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import RoomScreen from "./screens/RoomScreen";
+import HeaderLogo from "./components/HeaderLogo";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -89,17 +89,11 @@ export default function App() {
 											<Stack.Screen
 												name="Home"
 												options={{
-													title: "My App",
 													headerTitleAlign: "center",
 													headerTitleStyle: {
 														color: "white",
 													},
-													headerTitle: (props) => (
-														<Image
-															source={require("./assets/logo.png")}
-															style={{ width: 30, height: 30 }}
-														/>
-													),
+													headerTitle: () => <HeaderLogo />,
 												}}>
 												{() => <HomeScreen setToken={setToken} />}
 											</Stack.Screen>
@@ -112,12 +106,7 @@ export default function App() {
 													headerTitleStyle: {
 														color: "white",
 													},
-													headerTitle: (props) => (
-														<Image
-															source={require("./assets/logo.png")}
-															style={{ width: 30, height: 30 }}
-														/>
-													),
+													headerTitle: () => <HeaderLogo />,
 												}}
 											/>
 										</Stack.Navigator>
