@@ -4,12 +4,14 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 
 import HomeScreen from "./screens/HomeScreen";
 import SignInScreen from "./screens/SignInScreen";
 import SignUpScreen from "./screens/SignUpScreen";
-import SettingsScreen from "./screens/SettingsScreen";
+import ProfileScreen from "./screens/ProfileScreen";
 import RoomScreen from "./screens/RoomScreen";
+import AroundMeScreen from "./screens/AroundMeScreen";
 import HeaderLogo from "./components/HeaderLogo";
 
 const Stack = createNativeStackNavigator();
@@ -19,16 +21,30 @@ export default function App() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [userToken, setUserToken] = useState(null);
 
-	const setToken = async (token) => {
+	const setToken = async (token, userId) => {
 		if (token) {
 			// Connexion
 			await AsyncStorage.setItem("userToken", token);
+			await AsyncStorage.setItem("userId", userId);
 		} else {
 			// Deconnexion
 			await AsyncStorage.removeItem("userToken");
+			await AsyncStorage.removeItem("userId");
 		}
 
 		setUserToken(token);
+	};
+
+	const getUserId = async () => {
+		try {
+			const userId = await AsyncStorage.getItem("userId");
+			if (userId !== null) {
+				return userId;
+			}
+		} catch (e) {
+			// error reading value
+			console.log(e);
+		}
 	};
 
 	useEffect(() => {
@@ -113,12 +129,12 @@ export default function App() {
 									)}
 								</Tab.Screen>
 								<Tab.Screen
-									name="TabSettings"
+									name="TabAroundMe"
 									options={{
-										tabBarLabel: "Settings",
+										tabBarLabel: "Around me",
 										tabBarIcon: ({ color, size }) => (
-											<Ionicons
-												name={"ios-options"}
+											<FontAwesome
+												name="map-marker"
 												size={size}
 												color={color}
 											/>
@@ -127,11 +143,60 @@ export default function App() {
 									{() => (
 										<Stack.Navigator>
 											<Stack.Screen
-												name="Settings"
+												name="Around me"
 												options={{
-													title: "Settings",
+													headerTitleAlign: "center",
+													headerTitleStyle: {
+														color: "white",
+													},
+													headerTitle: () => <HeaderLogo />,
 												}}>
-												{() => <SettingsScreen setToken={setToken} />}
+												{() => <AroundMeScreen setToken={setToken} />}
+											</Stack.Screen>
+											<Stack.Screen
+												name="RoomScreen"
+												component={RoomScreen}
+												options={{
+													title: "Room",
+													headerTitleAlign: "center",
+													headerTitleStyle: {
+														color: "white",
+													},
+													headerTitle: () => <HeaderLogo />,
+												}}></Stack.Screen>
+										</Stack.Navigator>
+									)}
+								</Tab.Screen>
+								<Tab.Screen
+									name="TabSettings"
+									options={{
+										tabBarLabel: "Settings",
+										tabBarIcon: ({ color, size }) => (
+											<Ionicons
+												name="md-person-circle-outline"
+												size={size}
+												color={color}
+											/>
+										),
+									}}>
+									{() => (
+										<Stack.Navigator>
+											<Stack.Screen
+												name="Profile"
+												options={{
+													headerTitleAlign: "center",
+													headerTitleStyle: {
+														color: "white",
+													},
+													headerTitle: () => <HeaderLogo />,
+												}}>
+												{() => (
+													<ProfileScreen
+														setToken={setToken}
+														getUserId={getUserId}
+														userToken={userToken}
+													/>
+												)}
 											</Stack.Screen>
 										</Stack.Navigator>
 									)}

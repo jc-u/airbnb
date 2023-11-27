@@ -59,7 +59,7 @@ const SignUpScreen = ({ setToken }) => {
 				alert("Inscription réussie");
 			}
 			//  Envoie du 'token' à la fonction pour le créer dans l'asyncStorage et le state puis accéder au reste de l'application
-			setToken(response.data.token);
+			setToken(response.data.token, response.data.id);
 		} catch (error) {
 			console.log(error.response.data.error);
 			if (error.response) {

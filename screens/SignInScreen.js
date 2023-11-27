@@ -38,7 +38,7 @@ const SignInScreen = ({ setToken }) => {
 			if (response.status === 200) {
 				// Connexion réussie, affiche une popup
 				alert("Connexion réussie");
-				setToken(response.data.token);
+				setToken(response.data.token, response.data.id);
 			}
 		} catch (error) {
 			console.log(error.response.data.error);
